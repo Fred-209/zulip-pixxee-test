@@ -4,3 +4,4 @@ __revision__ = "$Id: settings.py 12 2008-11-23 19:38:52Z jarek.zgoda $"
 
 STATUS_USED = 1
 STATUS_REVOKED = 2
+SESSION_COOKIE_SECURE = True
