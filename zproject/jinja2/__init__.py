@@ -19,7 +19,7 @@ def json_dumps(obj: object) -> str:
 
 
 def environment(**options: Any) -> Environment:
-    env = Environment(autoescape=options.pop("autoescape", True), **options)
+    env = Environment(autoescape=True, **options)
     env.globals.update(
         # default_page_params is provided here for responses where
         # zulip_default_context is not run, including the 404.html and
