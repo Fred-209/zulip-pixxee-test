@@ -1,6 +1,5 @@
 import itertools
 import os
-import random
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Mapping, Sequence, Tuple
@@ -74,6 +73,7 @@ from zerver.models.streams import get_stream
 from zerver.models.users import get_user, get_user_by_delivery_email, get_user_profile_by_id
 from zilencer.models import RemoteRealm, RemoteZulipServer, RemoteZulipServerAuditLog
 from zilencer.views import update_remote_realm_data_for_server
+import secrets
 
 settings.USING_TORNADO = False
 # Disable using memcached caches to avoid 'unsupported pickle
@@ -189,7 +189,7 @@ def create_alert_words(realm_id: int) -> None:
 
     recs: List[AlertWord] = []
     for user_id in user_ids:
-        random.shuffle(alert_words)
+        secrets.SystemRandom().shuffle(alert_words)
         recs.extend(
             AlertWord(realm_id=realm_id, user_profile_id=user_id, word=word)
             for word in alert_words[:4]
@@ -301,7 +301,7 @@ class Command(BaseCommand):
 
         # Get consistent data for backend tests.
         if options["test_suite"]:
-            random.seed(0)
+            secrets.SystemRandom().seed(0)
 
             with connection.cursor() as cursor:
                 # Sometimes bugs relating to confusing recipient.id for recipient.type_id
@@ -501,17 +501,17 @@ class Command(BaseCommand):
                 raw_emojis = ["😎", "😂", "🐱‍👤"]
 
             for i in range(num_boring_names, num_names):
-                fname = random.choice(fnames) + str(i)
+                fname = secrets.choice(fnames) + str(i)
                 full_name = fname
-                if random.random() < 0.7:
-                    if random.random() < 0.3:
-                        full_name += " " + random.choice(non_ascii_names)
+                if secrets.SystemRandom().random() < 0.7:
+                    if secrets.SystemRandom().random() < 0.3:
+                        full_name += " " + secrets.choice(non_ascii_names)
                     else:
-                        full_name += " " + random.choice(mnames)
-                    if random.random() < 0.1:
-                        full_name += f" {random.choice(raw_emojis)} "
+                        full_name += " " + secrets.choice(mnames)
+                    if secrets.SystemRandom().random() < 0.1:
+                        full_name += f" {secrets.choice(raw_emojis)} "
                     else:
-                        full_name += " " + random.choice(lnames)
+                        full_name += " " + secrets.choice(lnames)
                 email = fname.lower().encode("ascii", "ignore").decode("ascii") + "@zulip.com"
                 validate_email(email)
                 names.append((full_name, email))
@@ -907,11 +907,11 @@ class Command(BaseCommand):
 
         # Create several initial huddles
         for i in range(options["num_huddles"]):
-            get_or_create_huddle(random.sample(user_profiles_ids, random.randint(3, 4)))
+            get_or_create_huddle(secrets.SystemRandom().sample(user_profiles_ids, secrets.SystemRandom().randint(3, 4)))
 
         # Create several initial pairs for personals
         personals_pairs = [
-            random.sample(user_profiles_ids, 2) for i in range(options["num_personals"])
+            secrets.SystemRandom().sample(user_profiles_ids, 2) for i in range(options["num_personals"])
         ]
 
         create_alert_words(zulip_realm.id)
@@ -1017,11 +1017,11 @@ class Command(BaseCommand):
 
                 # Add stream names and stream descriptions
                 for i in range(options["extra_streams"]):
-                    extra_stream_name = random.choice(extra_stream_names) + " " + str(i)
+                    extra_stream_name = secrets.choice(extra_stream_names) + " " + str(i)
 
                     # to imitate emoji insertions in stream names
-                    if random.random() <= 0.15:
-                        extra_stream_name += random.choice(raw_emojis)
+                    if secrets.SystemRandom().random() <= 0.15:
+                        extra_stream_name += secrets.choice(raw_emojis)
 
                     zulip_stream_dict[extra_stream_name] = {
                         "description": "Auto-generated extra stream.",
@@ -1062,7 +1062,7 @@ class Command(BaseCommand):
             count = options["num_messages"] // threads
             if i < options["num_messages"] % threads:
                 count += 1
-            jobs.append((count, personals_pairs, options, random.randint(0, 10**10)))
+            jobs.append((count, personals_pairs, options, secrets.SystemRandom().randint(0, 10**10)))
 
         for job in jobs:
             generate_and_send_messages(job)
@@ -1127,13 +1127,13 @@ def generate_and_send_messages(
 ) -> int:
     realm = get_realm("zulip")
     (tot_messages, personals_pairs, options, random_seed) = data
-    random.seed(random_seed)
+    secrets.SystemRandom().seed(random_seed)
 
     with open(
         os.path.join(get_or_create_dev_uuid_var_path("test-backend"), "test_messages.json"), "rb"
     ) as infile:
         dialog = orjson.loads(infile.read())
-    random.shuffle(dialog)
+    secrets.SystemRandom().shuffle(dialog)
     texts = itertools.cycle(dialog)
 
     # We need to filter out streams from the analytics realm as we don't want to generate
@@ -1158,7 +1158,7 @@ def generate_and_send_messages(
         # we want some streams to have more topics than others for
         # realistic variety.
         if not options["test_suite"]:
-            num_topics = random.randint(1, options["max_topics"])
+            num_topics = secrets.SystemRandom().randint(1, options["max_topics"])
         else:
             num_topics = options["max_topics"]
 
@@ -1176,16 +1176,16 @@ def generate_and_send_messages(
 
         message.content = next(texts)
 
-        randkey = random.randint(1, random_max)
+        randkey = secrets.SystemRandom().randint(1, random_max)
         if (
             num_messages > 0
-            and random.randint(1, random_max) * 100.0 / random_max < options["stickiness"]
+            and secrets.SystemRandom().randint(1, random_max) * 100.0 / random_max < options["stickiness"]
         ):
             # Use an old recipient
             message_type, recipient_id, saved_data = recipients[num_messages - 1]
             if message_type == Recipient.PERSONAL:
                 personals_pair = saved_data["personals_pair"]
-                random.shuffle(personals_pair)
+                secrets.SystemRandom().shuffle(personals_pair)
             elif message_type == Recipient.STREAM:
                 message.subject = saved_data["subject"]
                 message.recipient = get_recipient_by_id(recipient_id)
@@ -1193,20 +1193,20 @@ def generate_and_send_messages(
                 message.recipient = get_recipient_by_id(recipient_id)
         elif randkey <= random_max * options["percent_huddles"] / 100.0:
             message_type = Recipient.HUDDLE
-            message.recipient = get_recipient_by_id(random.choice(recipient_huddles))
+            message.recipient = get_recipient_by_id(secrets.choice(recipient_huddles))
         elif (
             randkey
             <= random_max * (options["percent_huddles"] + options["percent_personals"]) / 100.0
         ):
             message_type = Recipient.PERSONAL
-            personals_pair = random.choice(personals_pairs)
-            random.shuffle(personals_pair)
+            personals_pair = secrets.choice(personals_pairs)
+            secrets.SystemRandom().shuffle(personals_pair)
         elif randkey <= random_max * 1.0:
             message_type = Recipient.STREAM
-            message.recipient = get_recipient_by_id(random.choice(recipient_streams))
+            message.recipient = get_recipient_by_id(secrets.choice(recipient_streams))
 
         if message_type == Recipient.HUDDLE:
-            sender_id = random.choice(huddle_members[message.recipient.id])
+            sender_id = secrets.choice(huddle_members[message.recipient.id])
             message.sender = get_user_profile_by_id(sender_id)
         elif message_type == Recipient.PERSONAL:
             message.recipient = Recipient.objects.get(
@@ -1216,10 +1216,9 @@ def generate_and_send_messages(
             saved_data["personals_pair"] = personals_pair
         elif message_type == Recipient.STREAM:
             # Pick a random subscriber to the stream
-            message.sender = random.choice(
-                list(Subscription.objects.filter(recipient=message.recipient))
+            message.sender = secrets.choice(list(Subscription.objects.filter(recipient=message.recipient))
             ).user_profile
-            message.subject = random.choice(possible_topic_names[message.recipient.id])
+            message.subject = secrets.choice(possible_topic_names[message.recipient.id])
             saved_data["subject"] = message.subject
 
         message.date_sent = choose_date_sent(
@@ -1272,7 +1271,7 @@ def bulk_create_reactions(all_messages: List[Message]) -> None:
     reactions: List[Reaction] = []
 
     num_messages = int(0.2 * len(all_messages))
-    messages = random.sample(all_messages, num_messages)
+    messages = secrets.SystemRandom().sample(all_messages, num_messages)
     message_ids = [message.id for message in messages]
 
     message_to_users = get_message_to_users(message_ids)
@@ -1286,13 +1285,13 @@ def bulk_create_reactions(all_messages: List[Message]) -> None:
             # Ideally, we'd make exactly 1 reaction more common than
             # this algorithm generates.
             max_num_users = min(7, len(msg_user_ids))
-            num_users = random.randrange(1, max_num_users + 1)
-            user_ids = random.sample(msg_user_ids, num_users)
+            num_users = secrets.SystemRandom().randrange(1, max_num_users + 1)
+            user_ids = secrets.SystemRandom().sample(msg_user_ids, num_users)
 
             for user_id in user_ids:
                 # each user does between 1 and 3 emojis
-                num_emojis = random.choice([1, 2, 3])
-                emojis = random.sample(DEFAULT_EMOJIS, num_emojis)
+                num_emojis = secrets.choice([1, 2, 3])
+                emojis = secrets.SystemRandom().sample(DEFAULT_EMOJIS, num_emojis)
 
                 for emoji_name, emoji_code in emojis:
                     reaction = Reaction(
@@ -1338,7 +1337,7 @@ def choose_date_sent(
         lower_bound = interval_size * (num_messages - amount_in_first_chunk)
         upper_bound = interval_size * (num_messages - amount_in_first_chunk + 1)
 
-    offset_seconds = random.uniform(lower_bound, upper_bound)
+    offset_seconds = secrets.SystemRandom().uniform(lower_bound, upper_bound)
     spoofed_date += timedelta(seconds=offset_seconds)
 
     return spoofed_date

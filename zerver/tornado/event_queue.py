@@ -3,7 +3,6 @@
 import copy
 import logging
 import os
-import random
 import time
 import traceback
 import uuid
@@ -50,6 +49,7 @@ from zerver.models import CustomProfileField
 from zerver.tornado.descriptors import clear_descriptor_by_handler_id, set_descriptor_by_handler_id
 from zerver.tornado.exceptions import BadEventQueueIdError
 from zerver.tornado.handlers import finish_handler, get_handler_by_id, handler_stats_string
+import secrets
 
 # The idle timeout used to be a week, but we found that in that
 # situation, queues from dead browser sessions would grow quite large
@@ -273,7 +273,7 @@ class ClientDescriptor:
             self.add_event(heartbeat_event)
 
         ioloop = tornado.ioloop.IOLoop.current()
-        interval = HEARTBEAT_MIN_FREQ_SECS + random.randint(0, 10)
+        interval = HEARTBEAT_MIN_FREQ_SECS + secrets.SystemRandom().randint(0, 10)
         if self.client_type_name != "API: heartbeat test":
             self._timeout_handle = ioloop.call_later(interval, timeout_callback)
 

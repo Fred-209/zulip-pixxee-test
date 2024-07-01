@@ -1,5 +1,4 @@
 import hashlib
-import random
 from datetime import timedelta
 from io import StringIO
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Set, Union
@@ -113,6 +112,7 @@ from zerver.models.realms import get_realm
 from zerver.models.streams import get_default_stream_groups, get_stream
 from zerver.models.users import active_non_guest_user_ids, get_user, get_user_profile_by_id_in_realm
 from zerver.views.streams import compose_views
+import secrets
 
 if TYPE_CHECKING:
     from django.test.client import _MonkeyPatchedWSGIResponse as TestHttpResponse
@@ -3971,7 +3971,7 @@ class SubscriptionAPITest(ZulipTestCase):
         return [
             random_stream
             for stream in existing_stream_names
-            if (random_stream := stream + str(random.randint(0, 9))) not in all_stream_names
+            if (random_stream := stream + str(secrets.SystemRandom().randint(0, 9))) not in all_stream_names
         ]
 
     def test_invalid_stream_name(self) -> None:
@@ -5228,7 +5228,7 @@ class SubscriptionAPITest(ZulipTestCase):
             for stream in Stream.objects.filter(realm=get_realm("zulip"))
             if stream.name not in self.streams
         ]
-        random.shuffle(not_subbed)
+        secrets.SystemRandom().shuffle(not_subbed)
         self.assertNotEqual(len(not_subbed), 0)  # necessary for full test coverage
         try_to_remove = not_subbed[:3]  # attempt to remove up to 3 streams not already subbed to
         streams_to_remove.extend(try_to_remove)
