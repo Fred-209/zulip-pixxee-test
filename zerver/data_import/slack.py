@@ -1321,7 +1321,7 @@ def fetch_team_icons(
     if icon_url is None:
         return []
 
-    response = requests.get(icon_url, stream=True)
+    response = requests.get(icon_url, stream=True, timeout=60)
     response_raw = response.raw
 
     realm_id = zerver_realm["id"]
@@ -1485,8 +1485,8 @@ def check_token_access(token: str) -> None:
         logging.info("This is a Slack user token, which grants all rights the user has!")
     elif token.startswith("xoxb-"):
         data = requests.get(
-            "https://slack.com/api/team.info", headers={"Authorization": f"Bearer {token}"}
-        )
+            "https://slack.com/api/team.info", headers={"Authorization": f"Bearer {token}"}, 
+        timeout=60)
         if data.status_code != 200:
             raise ValueError(
                 f"Failed to fetch data (HTTP status {data.status_code}) for Slack token: {token}"
@@ -1510,7 +1510,7 @@ def get_slack_api_data(slack_api_url: str, get_param: str, **kwargs: Any) -> Any
     if not kwargs.get("token"):
         raise AssertionError("Slack token missing in kwargs")
     token = kwargs.pop("token")
-    data = requests.get(slack_api_url, headers={"Authorization": f"Bearer {token}"}, params=kwargs)
+    data = requests.get(slack_api_url, headers={"Authorization": f"Bearer {token}"}, params=kwargs, timeout=60)
 
     if data.status_code == requests.codes.ok:
         result = data.json()
