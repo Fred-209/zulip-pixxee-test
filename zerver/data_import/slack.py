@@ -57,6 +57,7 @@ from zerver.models import (
     Recipient,
     UserProfile,
 )
+from security import safe_requests
 
 SlackToZulipUserIDT: TypeAlias = Dict[str, int]
 AddedChannelsT: TypeAlias = Dict[str, Tuple[str, int]]
@@ -1321,7 +1322,7 @@ def fetch_team_icons(
     if icon_url is None:
         return []
 
-    response = requests.get(icon_url, stream=True)
+    response = safe_requests.get(icon_url, stream=True)
     response_raw = response.raw
 
     realm_id = zerver_realm["id"]
@@ -1484,7 +1485,7 @@ def check_token_access(token: str) -> None:
     if token.startswith("xoxp-"):
         logging.info("This is a Slack user token, which grants all rights the user has!")
     elif token.startswith("xoxb-"):
-        data = requests.get(
+        data = safe_requests.get(
             "https://slack.com/api/team.info", headers={"Authorization": f"Bearer {token}"}
         )
         if data.status_code != 200:
@@ -1510,7 +1511,7 @@ def get_slack_api_data(slack_api_url: str, get_param: str, **kwargs: Any) -> Any
     if not kwargs.get("token"):
         raise AssertionError("Slack token missing in kwargs")
     token = kwargs.pop("token")
-    data = requests.get(slack_api_url, headers={"Authorization": f"Bearer {token}"}, params=kwargs)
+    data = safe_requests.get(slack_api_url, headers={"Authorization": f"Bearer {token}"}, params=kwargs)
 
     if data.status_code == requests.codes.ok:
         result = data.json()
