@@ -21,7 +21,6 @@ from typing import (
 )
 
 import orjson
-import requests
 from django.forms.models import model_to_dict
 from django.utils.timezone import now as timezone_now
 from returns.curry import partial
@@ -42,6 +41,7 @@ from zerver.models import (
     UserProfile,
 )
 from zproject.backends import all_default_backend_names
+from security import safe_requests
 
 # stubs
 ZerverFieldsT: TypeAlias = Dict[str, Any]
@@ -560,7 +560,7 @@ def get_avatar(avatar_dir: str, size_url_suffix: str, avatar_upload_item: List[s
     image_path = os.path.join(avatar_dir, avatar_upload_item[1])
     original_image_path = os.path.join(avatar_dir, avatar_upload_item[2])
 
-    response = requests.get(avatar_url + size_url_suffix, stream=True)
+    response = safe_requests.get(avatar_url + size_url_suffix, stream=True)
     with open(image_path, "wb") as image_file:
         shutil.copyfileobj(response.raw, image_file)
     shutil.copy(image_path, original_image_path)
@@ -647,7 +647,7 @@ def get_uploads(upload_dir: str, upload: List[str]) -> None:
     upload_path = upload[1]
     upload_path = os.path.join(upload_dir, upload_path)
 
-    response = requests.get(upload_url, stream=True)
+    response = safe_requests.get(upload_url, stream=True)
     os.makedirs(os.path.dirname(upload_path), exist_ok=True)
     with open(upload_path, "wb") as upload_file:
         shutil.copyfileobj(response.raw, upload_file)
@@ -695,7 +695,7 @@ def get_emojis(emoji_dir: str, upload: List[str]) -> None:
     emoji_path = upload[1]
     upload_emoji_path = os.path.join(emoji_dir, emoji_path)
 
-    response = requests.get(emoji_url, stream=True)
+    response = safe_requests.get(emoji_url, stream=True)
     os.makedirs(os.path.dirname(upload_emoji_path), exist_ok=True)
     with open(upload_emoji_path, "wb") as emoji_file:
         shutil.copyfileobj(response.raw, emoji_file)

@@ -15,8 +15,7 @@ import socket
 import sys
 from argparse import ArgumentParser
 from typing import List
-
-import requests
+from security import safe_requests
 
 parser = ArgumentParser(description="Give a mentor ssh access to this machine.")
 parser.add_argument("username", help="GitHub username of the mentor.")
@@ -33,7 +32,7 @@ append_key = """\
 def get_mentor_keys(username: str) -> List[str]:
     url = f"https://api.github.com/users/{username}/keys"
 
-    r = requests.get(url)
+    r = safe_requests.get(url)
     if r.status_code != 200:
         print("Cannot connect to GitHub...")
         sys.exit(1)
