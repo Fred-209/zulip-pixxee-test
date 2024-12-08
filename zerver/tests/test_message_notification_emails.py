@@ -1,4 +1,3 @@
-import random
 import re
 from email.headerregistry import Address
 from typing import Dict, List, Optional, Sequence, Union
@@ -32,6 +31,7 @@ from zerver.models.realm_emoji import get_name_keyed_dict_for_active_realm_emoji
 from zerver.models.realms import get_realm
 from zerver.models.scheduled_jobs import NotificationTriggers
 from zerver.models.streams import get_stream
+import secrets
 
 
 class TestMessageNotificationEmails(ZulipTestCase):
@@ -93,7 +93,7 @@ class TestMessageNotificationEmails(ZulipTestCase):
         return re.sub(r"\s+", " ", s)
 
     def _get_tokens(self) -> List[str]:
-        return ["mm" + str(random.getrandbits(32)) for _ in range(30)]
+        return ["mm" + str(secrets.SystemRandom().getrandbits(32)) for _ in range(30)]
 
     def _test_cases(
         self,

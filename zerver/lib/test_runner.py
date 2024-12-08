@@ -1,6 +1,5 @@
 import multiprocessing
 import os
-import random
 import shutil
 import unittest
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
@@ -25,13 +24,14 @@ from zerver.lib import test_helpers
 from zerver.lib.sqlalchemy_utils import get_sqlalchemy_connection
 from zerver.lib.test_fixtures import BACKEND_DATABASE_TEMPLATE
 from zerver.lib.test_helpers import append_instrumentation_data, write_instrumentation_reports
+import secrets
 
 # We need to pick an ID for this test-backend invocation, and store it
 # in this global so it can be used in init_worker; this is used to
 # ensure the database IDs we select are unique for each `test-backend`
 # run.  This probably should use a locking mechanism rather than the
 # below hack, which fails 1/10000000 of the time.
-random_id_range_start = str(random.randint(1, 10000000))
+random_id_range_start = str(secrets.SystemRandom().randint(1, 10000000))
 
 
 def get_database_id(worker_id: Optional[int] = None) -> str:

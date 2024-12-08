@@ -1,6 +1,5 @@
 import logging
 import os
-import random
 import shutil
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -42,6 +41,7 @@ from zerver.models import (
     UserProfile,
 )
 from zproject.backends import all_default_backend_names
+import secrets
 
 # stubs
 ZerverFieldsT: TypeAlias = Dict[str, Any]
@@ -206,7 +206,7 @@ def make_user_messages(
 
 
 def build_subscription(recipient_id: int, user_id: int, subscription_id: int) -> ZerverFieldsT:
-    subscription = Subscription(color=random.choice(STREAM_COLORS), id=subscription_id)
+    subscription = Subscription(color=secrets.choice(STREAM_COLORS), id=subscription_id)
     subscription_dict = model_to_dict(subscription, exclude=["user_profile", "recipient_id"])
     subscription_dict["user_profile"] = user_id
     subscription_dict["recipient"] = recipient_id

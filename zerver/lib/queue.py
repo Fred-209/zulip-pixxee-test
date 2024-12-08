@@ -1,5 +1,4 @@
 import logging
-import random
 import ssl
 import threading
 import time
@@ -21,6 +20,7 @@ from tornado import ioloop
 from typing_extensions import TypeAlias, override
 
 from zerver.lib.utils import assert_is_not_none
+import secrets
 
 MAX_REQUEST_RETRIES = 3
 ChannelT = TypeVar("ChannelT", Channel, BlockingChannel)
@@ -96,7 +96,7 @@ class QueueClient(Generic[ChannelT], metaclass=ABCMeta):
         )
 
     def _generate_ctag(self, queue_name: str) -> str:
-        return f"{queue_name}_{random.getrandbits(16)}"
+        return f"{queue_name}_{secrets.SystemRandom().getrandbits(16)}"
 
     def _reconnect_consumer_callback(self, queue: str, consumer: Consumer[ChannelT]) -> None:
         self.log.info("Queue reconnecting saved consumer %r to queue %s", consumer, queue)

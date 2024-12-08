@@ -5,7 +5,6 @@ https://docs.mattermost.com/administration/bulk-export.html
 
 import logging
 import os
-import random
 import re
 import secrets
 import shutil
@@ -354,7 +353,7 @@ def process_message_attachments(
         s3_path = "/".join(
             [
                 str(realm_id),
-                format(random.randint(0, 255), "x"),
+                format(secrets.SystemRandom().randint(0, 255), "x"),
                 secrets.token_urlsafe(18),
                 sanitize_name(file_name),
             ]
