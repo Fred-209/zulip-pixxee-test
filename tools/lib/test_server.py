@@ -7,6 +7,7 @@ from typing import Iterator, Optional
 
 # Verify the Zulip venv is available.
 from tools.lib import sanity_check
+from security import safe_command
 
 sanity_check.check_venv(__file__)
 
@@ -75,7 +76,7 @@ def test_server_running(
         run_dev_server_command = ["tools/run-dev", "--test", "--streamlined"]
         if skip_provision_check:
             run_dev_server_command.append("--skip-provision-check")
-        server = subprocess.Popen(run_dev_server_command, stdout=log, stderr=log)
+        server = safe_command.run(subprocess.Popen, run_dev_server_command, stdout=log, stderr=log)
 
         try:
             # Wait for the server to start up.

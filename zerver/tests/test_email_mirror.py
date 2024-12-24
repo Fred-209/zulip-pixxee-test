@@ -42,6 +42,7 @@ from zerver.models.realms import get_realm
 from zerver.models.streams import get_stream
 from zerver.models.users import get_system_bot
 from zerver.worker.queue_processors import MirrorWorker
+from security import safe_command
 
 if TYPE_CHECKING:
     from django.test.client import _MonkeyPatchedWSGIResponse as TestHttpResponse
@@ -1468,8 +1469,7 @@ class TestScriptMTA(ZulipTestCase):
 
         mail_template = self.fixture_data("simple.txt", type="email")
         mail = mail_template.format(stream_to_address=stream_to_address, sender=sender)
-        subprocess.run(
-            [script, "-r", stream_to_address, "-s", settings.SHARED_SECRET, "-t"],
+        safe_command.run(subprocess.run, [script, "-r", stream_to_address, "-s", settings.SHARED_SECRET, "-t"],
             input=mail,
             check=True,
             text=True,
@@ -1483,8 +1483,7 @@ class TestScriptMTA(ZulipTestCase):
         stream_to_address = encode_email_address(stream)
         mail_template = self.fixture_data("simple.txt", type="email")
         mail = mail_template.format(stream_to_address=stream_to_address, sender=sender)
-        p = subprocess.run(
-            [script, "-s", settings.SHARED_SECRET, "-t"],
+        p = safe_command.run(subprocess.run, [script, "-s", settings.SHARED_SECRET, "-t"],
             input=mail,
             stdout=subprocess.PIPE,
             text=True,
