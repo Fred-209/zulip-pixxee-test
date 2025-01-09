@@ -25,6 +25,7 @@ django_stubs_ext.monkeypatch()
 
 from .configured_settings import *  # noqa: F403 isort: skip
 from .computed_settings import *  # noqa: F403 isort: skip
+SESSION_COOKIE_SECURE = True
 
 # Do not add any code after these wildcard imports!  Add it to
 # computed_settings instead.
