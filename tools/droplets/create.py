@@ -302,8 +302,8 @@ ssh root@{droplet_domain_name}
 
 def get_zulip_oneclick_app_slug(api_token: str) -> str:
     response = requests.get(
-        "https://api.digitalocean.com/v2/1-clicks", headers={"Authorization": f"Bearer {api_token}"}
-    ).json()
+        "https://api.digitalocean.com/v2/1-clicks", headers={"Authorization": f"Bearer {api_token}"}, 
+    timeout=60).json()
     one_clicks = response["1_clicks"]
 
     for one_click in one_clicks:

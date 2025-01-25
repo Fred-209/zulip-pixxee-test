@@ -11,7 +11,7 @@ class ResponsesTest(ZulipTestCase):
             Exception,
             r"^Outgoing network requests are not allowed in the Zulip tests\.",
         ):
-            result = requests.request("GET", "https://www.google.com")
+            result = requests.request("GET", "https://www.google.com", timeout=60)
 
         # A test can invoke its own responses.RequestsMock context manager
         # and register URLs to mock, accessible from within the context.
@@ -23,6 +23,6 @@ class ResponsesTest(ZulipTestCase):
                 status=200,
                 content_type="application/json",
             )
-            result = requests.request("GET", "https://www.google.com")
+            result = requests.request("GET", "https://www.google.com", timeout=60)
             self.assertEqual(result.status_code, 200)
             self.assertEqual(result.text, "{}")
