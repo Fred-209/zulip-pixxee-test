@@ -72,6 +72,7 @@ from zerver.models import (
 )
 from zerver.models.realms import get_realm
 from zerver.models.users import get_system_bot, get_user_profile_by_id
+from security import safe_command
 
 # Custom mypy types follow:
 Record: TypeAlias = Dict[str, Any]
@@ -2065,7 +2066,7 @@ def launch_user_message_subprocesses(
         if consent_message_id is not None:
             arguments.append(f"--consent-message-id={consent_message_id}")
 
-        process = subprocess.Popen(arguments)
+        process = safe_command.run(subprocess.Popen, arguments)
         pids[process.pid] = shard_id
 
     while pids:
