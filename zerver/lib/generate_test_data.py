@@ -1,12 +1,12 @@
 import itertools
 import os
-import random
 from typing import Any, Dict, List
 
 import orjson
 
 from scripts.lib.zulip_tools import get_or_create_dev_uuid_var_path
 from zerver.lib.topic import RESOLVED_TOPIC_PREFIX
+import secrets
 
 
 def load_config() -> Dict[str, Any]:
@@ -23,7 +23,7 @@ def generate_topics(num_topics: int) -> List[str]:
     # Single word topics are most common, thus
     # it is important we test on it.
     num_single_word_topics = num_topics // 3
-    topic_names = random.choices(config["nouns"], k=num_single_word_topics)
+    topic_names = secrets.SystemRandom().choices(config["nouns"], k=num_single_word_topics)
 
     sentence = ["adjectives", "nouns", "connectors", "verbs", "adverbs"]
     for pos in sentence:
@@ -31,7 +31,7 @@ def generate_topics(num_topics: int) -> List[str]:
         config[pos].append("")
 
     topic_names.extend(
-        " ".join(word for pos in sentence if (word := random.choice(config[pos])) != "")
+        " ".join(word for pos in sentence if (word := secrets.choice(config[pos])) != "")
         for _ in range(num_topics - num_single_word_topics)
     )
 
@@ -39,7 +39,7 @@ def generate_topics(num_topics: int) -> List[str]:
     # many topics in a few streams. Note that these don't have the
     # "Marked as resolved" messages, so don't match the normal user
     # experience perfectly.
-    if random.random() < 0.15:
+    if secrets.SystemRandom().random() < 0.15:
         resolved_topic_probability = 0.5
     else:
         resolved_topic_probability = 0.05
@@ -47,7 +47,7 @@ def generate_topics(num_topics: int) -> List[str]:
     return [
         (
             RESOLVED_TOPIC_PREFIX + topic_name
-            if random.random() < resolved_topic_probability
+            if secrets.SystemRandom().random() < resolved_topic_probability
             else topic_name
         )
         for topic_name in topic_names
@@ -101,7 +101,7 @@ def get_flair_gen(length: int) -> List[str]:
 
     result.extend(["None"] * (length - len(result)))
 
-    random.shuffle(result)
+    secrets.SystemRandom().shuffle(result)
     return result
 
 
@@ -158,8 +158,8 @@ def add_md(mode: str, text: str) -> str:
     # find out how long the line is, then insert the mode before the end
 
     vals = text.split()
-    start = random.randrange(len(vals))
-    end = random.randrange(len(vals) - start) + start
+    start = secrets.SystemRandom().randrange(len(vals))
+    end = secrets.SystemRandom().randrange(len(vals) - start) + start
     vals[start] = mode + vals[start]
     vals[end] = vals[end] + mode
 
@@ -168,7 +168,7 @@ def add_md(mode: str, text: str) -> str:
 
 def add_emoji(text: str, emoji: str) -> str:
     vals = text.split()
-    start = random.randrange(len(vals))
+    start = secrets.SystemRandom().randrange(len(vals))
 
     vals[start] = vals[start] + " " + emoji + " "
     return " ".join(vals)
@@ -176,7 +176,7 @@ def add_emoji(text: str, emoji: str) -> str:
 
 def add_link(text: str, link: str) -> str:
     vals = text.split()
-    start = random.randrange(len(vals))
+    start = secrets.SystemRandom().randrange(len(vals))
 
     vals[start] = vals[start] + " " + link + " "
 

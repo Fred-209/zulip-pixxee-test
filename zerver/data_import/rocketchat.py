@@ -1,7 +1,6 @@
 import hashlib
 import logging
 import os
-import random
 import secrets
 import uuid
 from typing import Any, Dict, List, Set, Tuple
@@ -408,7 +407,7 @@ def process_message_attachment(
     s3_path = "/".join(
         [
             str(realm_id),
-            format(random.randint(0, 255), "x"),
+            format(secrets.SystemRandom().randint(0, 255), "x"),
             secrets.token_urlsafe(18),
             sanitized_name,
         ]

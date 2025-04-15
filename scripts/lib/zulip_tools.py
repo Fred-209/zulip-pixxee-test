@@ -7,7 +7,6 @@ import json
 import logging
 import os
 import pwd
-import random
 import shlex
 import shutil
 import signal
@@ -18,6 +17,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import IO, Any, Dict, List, Sequence, Set
 from urllib.parse import SplitResult
+import secrets
 
 DEPLOYMENTS_DIR = "/home/zulip/deployments"
 LOCK_DIR = os.path.join(DEPLOYMENTS_DIR, "lock")
@@ -48,7 +48,7 @@ def overwrite_symlink(src: str, dst: str) -> None:
         # Note: creating a temporary filename like this is not generally
         # secure.  It’s fine in this case because os.symlink refuses to
         # overwrite an existing target; we handle the error and try again.
-        tmp = os.path.join(dir, f".{base}.{random.randrange(1 << 40):010x}")
+        tmp = os.path.join(dir, f".{base}.{secrets.SystemRandom().randrange(1 << 40):010x}")
         try:
             os.symlink(src, tmp)
         except FileExistsError:

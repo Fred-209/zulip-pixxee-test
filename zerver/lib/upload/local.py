@@ -1,6 +1,5 @@
 import logging
 import os
-import random
 import secrets
 import shutil
 from datetime import datetime
@@ -77,7 +76,7 @@ class LocalUploadBackend(ZulipUploadBackend):
         return "/".join(
             [
                 realm_id,
-                format(random.randint(0, 255), "x"),
+                format(secrets.SystemRandom().randint(0, 255), "x"),
                 secrets.token_urlsafe(18),
                 sanitize_name(uploaded_file_name),
             ]

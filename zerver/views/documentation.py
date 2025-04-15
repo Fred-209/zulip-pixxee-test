@@ -1,5 +1,4 @@
 import os
-import random
 import re
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -29,6 +28,7 @@ from zerver.lib.subdomains import get_subdomain
 from zerver.lib.templates import render_markdown_path
 from zerver.models import Realm
 from zerver.openapi.openapi import get_endpoint_from_operationid, get_openapi_summary
+import secrets
 
 
 @dataclass
@@ -225,7 +225,7 @@ class MarkdownDirectoryView(ApiURLView):
                 context["PAGE_TITLE"] = title_base
             request_notes = RequestNotes.get_notes(self.request)
             request_notes.placeholder_open_graph_description = (
-                f"REPLACEMENT_PAGE_DESCRIPTION_{int(2**24 * random.random())}"
+                f"REPLACEMENT_PAGE_DESCRIPTION_{int(2**24 * secrets.SystemRandom().random())}"
             )
             context["PAGE_DESCRIPTION"] = request_notes.placeholder_open_graph_description
 
