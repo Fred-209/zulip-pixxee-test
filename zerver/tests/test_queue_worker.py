@@ -754,7 +754,7 @@ class WorkerTest(ZulipTestCase):
 
         self.assertEqual(processed, ["good", "fine", "back to normal"])
         with open(fn) as f:
-            line = f.readline().strip()
+            line = f.readline(5_000_000).strip()
         events = orjson.loads(line.split("\t")[1])
         self.assert_length(events, 1)
         event = events[0]
@@ -790,7 +790,7 @@ class WorkerTest(ZulipTestCase):
 
         self.assertEqual(processed, ["good", "fine"])
         with open(fn) as f:
-            line = f.readline().strip()
+            line = f.readline(5_000_000).strip()
         events = orjson.loads(line.split("\t")[1])
         self.assert_length(events, 4)
 
@@ -843,7 +843,7 @@ class WorkerTest(ZulipTestCase):
 
             self.assertEqual(processed, ["good", "fine", "back to normal"])
             with open(fn) as f:
-                line = f.readline().strip()
+                line = f.readline(5_000_000).strip()
             events = orjson.loads(line.split("\t")[1])
             self.assert_length(events, 1)
             event = events[0]

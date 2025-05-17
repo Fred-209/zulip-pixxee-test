@@ -56,7 +56,7 @@ def setup_sentry(dsn: Optional[str], environment: str) -> None:
     sentry_release = ZULIP_VERSION
     if os.path.exists(os.path.join(DEPLOY_ROOT, "sentry-release")):
         with open(os.path.join(DEPLOY_ROOT, "sentry-release")) as sentry_release_file:
-            sentry_release = sentry_release_file.readline().strip()
+            sentry_release = sentry_release_file.readline(5_000_000).strip()
     sentry_sdk.init(
         dsn=dsn,
         environment=environment,
