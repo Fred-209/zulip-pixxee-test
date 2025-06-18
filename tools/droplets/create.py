@@ -23,7 +23,7 @@ import urllib.request
 from typing import Any, Dict, List, Tuple
 
 import digitalocean
-import requests
+from security import safe_requests
 
 parser = argparse.ArgumentParser(description="Create a Zulip development VM DigitalOcean droplet.")
 parser.add_argument(
@@ -301,7 +301,7 @@ ssh root@{droplet_domain_name}
 
 
 def get_zulip_oneclick_app_slug(api_token: str) -> str:
-    response = requests.get(
+    response = safe_requests.get(
         "https://api.digitalocean.com/v2/1-clicks", headers={"Authorization": f"Bearer {api_token}"}
     ).json()
     one_clicks = response["1_clicks"]
