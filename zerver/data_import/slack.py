@@ -2,7 +2,6 @@ import itertools
 import logging
 import os
 import posixpath
-import random
 import secrets
 import shutil
 import zipfile
@@ -1139,7 +1138,7 @@ def get_attachment_path_and_content(fileinfo: ZerverFieldsT, realm_id: int) -> T
     s3_path = "/".join(
         [
             str(realm_id),
-            format(random.randint(0, 255), "x"),
+            format(secrets.SystemRandom().randint(0, 255), "x"),
             secrets.token_urlsafe(18),
             sanitize_name(fileinfo["name"]),
         ]

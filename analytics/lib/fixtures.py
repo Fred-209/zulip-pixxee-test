@@ -1,8 +1,8 @@
 from math import sqrt
-from random import Random
 from typing import List
 
 from analytics.lib.counts import CountStat
+import secrets
 
 
 def generate_time_series_data(
@@ -36,7 +36,7 @@ def generate_time_series_data(
     partial_sum -- If True, return partial sum of the series.
     random_seed -- Seed for random number generator.
     """
-    rng = Random(random_seed)
+    rng = secrets.SystemRandom().Random(random_seed)
 
     if frequency == CountStat.HOUR:
         length = days * 24
